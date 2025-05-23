@@ -16,3 +16,5 @@ RUN apt-get update -y && apt-get -y upgrade\
 EXPOSE 443
 
 CMD ["nginx" , "-g", "daemon off;"]
+
+# need to change CN for kipouliq later on
