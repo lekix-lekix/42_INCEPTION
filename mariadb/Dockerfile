@@ -2,7 +2,7 @@ FROM debian:11.11
 
 WORKDIR /inception
 
-COPY . .
+# COPY . .
 
 RUN apt-get update -y && apt-get -y upgrade
 
@@ -16,4 +16,4 @@ RUN mysqld_safe &
 
 RUN sleep 3
 
-CMD ["mysql_secure_installation"]         
+CMD ["mysqld"]
