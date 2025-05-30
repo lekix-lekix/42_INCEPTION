@@ -4,25 +4,36 @@ services:
     container_name: nginx
     ports:
       - "8080:443"
+    networks:
+      - frontend
     build:
       context: ./
       dockerfile: ./nginx/Dockerfile
     
   wordpress-php:
     container_name: wordpress-php
+    networks:
+      - frontend
+      - backend
     build:
       context: ./
       dockerfile: ./wordpress/Dockerfile
 
   db:
     container_name: mariadb
-    build:
-      context: ./
-      dockerfile: ./mariadb/Dockerfile
+    networks:
+      - backend
     environment:
-      MARIADB_ROOT_PASSWORD: password
+      MARIADB_ROOT_PASSWORD: coucoutoi
       MARIADB_DATABASE: mariadb
       MARIADB_USER: user
       MARIADB_PASSWORD: password
+    build:
+      context: ./
+      dockerfile: ./mariadb/Dockerfile
     # ports:
     #   - "3306:3306"
+
+networks:
+  frontend:
+  backend:
