@@ -15,10 +15,4 @@ RUN mkdir -p /run/mysqld
     
 RUN chown mysql:mysql /run/mysqld
     
-RUN mysqld_safe &
-    
-RUN sleep 3
-    
-# RUN mysql -u root < ./init.sql
-
-CMD ["mysqld"]
+CMD ["bash", "./init.sh"]

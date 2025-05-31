@@ -3,7 +3,7 @@ FROM debian:11.11
 WORKDIR /inception
 
 RUN apt update -y && apt-get install -y --no-install-recommends \
-    php-fpm php netcat curl ca-certificates
+    php-fpm php-mysqli php netcat curl ca-certificates 
 
 COPY ./wordpress/info.php /var/www/html/
 
@@ -16,11 +16,24 @@ RUN useradd wordpress && echo "wordpress:password" | chpasswd && chown -R wordpr
 
 USER wordpress
 
-RUN wp core download --path=/var/www/html/ && mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php 
-# RUN wp core download --path=/var/www/html/ && \
-#     wp core install --path=/var/www/html --url=htts://localhost:8080 --title="C'est mon site" \
-#     --admin_user=supervisor --admin_password=password --admin_email=moi@coucou.com && \
-#     wp core version
+RUN wp core download --path=/var/www/html/
+
+RUN wp config create \
+    --path=/var/www/html/ \
+    --dbname=wordpress_db \
+    --dbuser=le_supervisor \
+    --dbpass=coucoutoi \
+    --dbhost=mariadb 
+
+RUN cd /var/www/html
+
+RUN wp core install \
+    --path=/var/www/html/ \
+    --url=httsp://localhost:8080 \
+    --title="C'est mon site" \
+    --admin_user=supervisor \
+    --admin_password=password \
+    --admin_email=moi@coucou.com
 
 USER root
 
@@ -33,6 +46,8 @@ RUN sed -i 's|^listen = .*|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf
 #     usermod -a -G wordpress www-data && \
 #     chmod -R u=rwX,g=rX,o= /var/www/html && \
 #     chown -R wordpress:wordpress /var/www/html
+
+RUN wp core version
 
 # CMD ["cat", "/etc/php/7.4/fpm/pool.d/www.conf"]
 CMD ["php-fpm7.4", "-F"]

@@ -10,16 +10,7 @@ services:
       context: ./
       dockerfile: ./nginx/Dockerfile
     
-  wordpress-php:
-    container_name: wordpress-php
-    networks:
-      - frontend
-      - backend
-    build:
-      context: ./
-      dockerfile: ./wordpress/Dockerfile
-
-  db:
+  mariadb:
     container_name: mariadb
     networks:
       - backend
@@ -33,6 +24,18 @@ services:
       dockerfile: ./mariadb/Dockerfile
     # ports:
     #   - "3306:3306"
+  
+  wordpress-php:
+    container_name: wordpress-php
+    depends_on: 
+      - mariadb
+    networks:
+      - frontend
+      - backend
+    build:
+      context: ./
+      dockerfile: ./wordpress/Dockerfile
+
 
 networks:
   frontend:
