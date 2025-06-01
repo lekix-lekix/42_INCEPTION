@@ -5,7 +5,7 @@ WORKDIR /inception
 COPY ./nginx .
 
 RUN apt-get update -y && apt-get upgrade -y && \
-    apt install nginx openssl netcat -y && \
+    apt install nginx openssl netcat curl -y && \
     openssl req -x509 -nodes -days 365 \
         -subj "/C=FR/ST=Paris/L=Paris/O=No-organization/CN=localhost" \
         -keyout /etc/ssl/private/nginx-selfsigned.key \

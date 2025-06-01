@@ -1,15 +1,4 @@
 services:
-  nginx:
-    # image: nginx_test_official:latest
-    container_name: nginx
-    ports:
-      - "8080:443"
-    networks:
-      - frontend
-    build:
-      context: ./
-      dockerfile: ./nginx/Dockerfile
-    
   mariadb:
     container_name: mariadb
     networks:
@@ -36,6 +25,18 @@ services:
       context: ./
       dockerfile: ./wordpress/Dockerfile
 
+  nginx:
+    # image: nginx_test_official:latest
+    container_name: nginx
+    depends_on:
+      - wordpress-php
+    ports:
+      - "8080:443"
+    networks:
+      - frontend
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile
 
 networks:
   frontend:
