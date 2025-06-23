@@ -1,3 +1,57 @@
+# services:
+#   mariadb:
+#     container_name: mariadb
+#     networks:
+#       - backend
+#     environment:
+#       MARIADB_ROOT_PASSWORD: coucoutoi
+#       MARIADB_DATABASE: mariadb
+#       MARIADB_USER: user
+#       MARIADB_PASSWORD: password
+#     build:
+#       context: ./
+#       dockerfile: ./mariadb/Dockerfile
+#     # ports:
+#     #   - "3306:3306"
+  
+#   wordpress-php:
+#     container_name: wordpress-php
+#     depends_on: 
+#       - mariadb
+#     networks:
+#       - frontend
+#       - backend
+#     build:
+#       context: ./
+#       dockerfile: ./wordpress/Dockerfile
+#     volumes:
+#       - wordpress_files:/var/www/html
+
+#   nginx:
+#     # image: nginx_test_official:latest
+#     container_name: nginx
+#     depends_on:
+#       - wordpress-php
+#     ports:
+#       - "8080:443"
+#     networks:
+#       - frontend
+#     build:
+#       context: ./
+#       dockerfile: ./nginx/Dockerfile
+#     volumes:
+#       - wordpress_files:/var/www/html:ro
+
+# volumes:
+#   wordpress_files:
+#   wp_volume:
+
+# networks:
+#   frontend:
+#   backend:
+
+version: '3.8'
+
 services:
   mariadb:
     container_name: mariadb
@@ -11,22 +65,32 @@ services:
     build:
       context: ./
       dockerfile: ./mariadb/Dockerfile
+    volumes:
+      # Persister les données de la base
+      - mariadb_data:/var/lib/mysql
     # ports:
     #   - "3306:3306"
-  
+
   wordpress-php:
     container_name: wordpress-php
-    depends_on: 
+    depends_on:
       - mariadb
     networks:
       - frontend
       - backend
+    environment:
+      # Configuration WordPress pour se connecter à MariaDB
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_NAME: mariadb
+      WORDPRESS_DB_USER: user
+      WORDPRESS_DB_PASSWORD: password
     build:
       context: ./
       dockerfile: ./wordpress/Dockerfile
+    volumes:
+      - wordpress_files:/var/www/html
 
   nginx:
-    # image: nginx_test_official:latest
     container_name: nginx
     depends_on:
       - wordpress-php
@@ -37,7 +101,18 @@ services:
     build:
       context: ./
       dockerfile: ./nginx/Dockerfile
+    volumes:
+      - wordpress_files:/var/www/html:ro
+
+volumes:
+  wordpress_files:
+    driver: local
+  mariadb_data:
+    driver: local
+  # wp_volume:  # Volume non utilisé, supprimé
 
 networks:
   frontend:
+    driver: bridge
   backend:
+    driver: bridge
