@@ -1,27 +1,33 @@
+#!/bin/bash
+
 cd /var/www/html && \
 wp core download --allow-root;
 wp config create --allow-root \
-    --dbname=wordpress_db \
-    --dbuser=le_supervisor \
-    --dbpass=coucoutoi \
-    --dbhost=mariadb:3306 \
+    --dbname=$MARIADB_DATABASE \
+    --dbuser=$MARIADB_WP_USER \
+    --dbpass=$MARIADB_PASSWORD \
+    --dbhost=$WORDPRESS_DB_HOST \
     --force;
 
-wp config set WP_HOME 'https://kipouliq.42.fr' --allow-root;
-wp config set WP_SITEURL 'https://kipouliq.42.fr' --allow-root;
+wp config set WP_HOME "$HOSTNAME" --allow-root;
+wp config set WP_SITEURL "$HOSTNAME" --allow-root;
 
 cd /var/www/html && \
 wp core install --allow-root \
-    --url='https://kipouliq.42.fr/' \
-    --title='C est mon site' \
-    --admin_user=supervisor \
-    --admin_password=password \
-    --admin_email=moi@coucou.com \
+    --url=$HOSTNAME \
+    --title='Inzepzion baby' \
+    --admin_user=$WORDPRESS_ADMIN \
+    --admin_password=$WORDPRESS_ADMIN_PWD \
+    --admin_email=$WORDPRESS_ADMIN_EMAIL \
     --skip-email
+
+wp user create $WORDPRESS_EDITOR $WORDPRESS_EDITOR_EMAIL \
+    --role=editor \
+    --user_pass=$WORDPRESS_EDITOR_PWD \
+    --allow-root
 
 chown -R www-data:www-data /var/www/html
 find /var/www/html -type d -exec chmod 755 {} \;
 find /var/www/html -type f -exec chmod 644 {} \;
 
-# Lancer PHP-FPM
-php-fpm7.4 -F
+exec php-fpm7.4 -F
