@@ -3,19 +3,19 @@ services:
     container_name: mariadb
     networks:
       - backend
+    env_file:
+      - path: ./.env
+        required: true
     environment:
-      MARIADB_ROOT_PASSWORD: coucoutoi
-      MARIADB_DATABASE: mariadb
-      MARIADB_USER: user
-      MARIADB_PASSWORD: password
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PWD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
     build:
       context: ./
       dockerfile: ./mariadb/Dockerfile
     volumes:
-      # Persister les données de la base
       - mariadb_data:/var/lib/mysql
-    # ports:
-    #   - "3306:3306"
 
   wordpress-php:
     container_name: wordpress-php
@@ -24,12 +24,14 @@ services:
     networks:
       - frontend
       - backend
+    env_file:
+      - path: ./.env
+        required: true
     environment:
-      # Configuration WordPress pour se connecter à MariaDB
-      WORDPRESS_DB_HOST: mariadb:3306
-      WORDPRESS_DB_NAME: mariadb
-      WORDPRESS_DB_USER: user
-      WORDPRESS_DB_PASSWORD: password
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${MARIADB_DATABASE}
+      WORDPRESS_DB_USER: ${MARIADB_USER}
+      WORDPRESS_DB_PASSWORD: ${MARIADB_PASSWORD}
     build:
       context: ./
       dockerfile: ./wordpress/Dockerfile
@@ -42,7 +44,6 @@ services:
       - wordpress-php
     ports:
       - "443:443"
-      # - "80:8080"
     networks:
       - frontend
     build:
@@ -56,7 +57,6 @@ volumes:
     driver: local
   mariadb_data:
     driver: local
-  # wp_volume:  # Volume non utilisé, supprimé
 
 networks:
   frontend:
