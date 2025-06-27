@@ -20,4 +20,6 @@ EOF
 
 mysqladmin -u root -p"$MARIADB_ROOT_PWD" shutdown
 
+touch /var/lib/mysql/.init_done
+
 exec mysqld

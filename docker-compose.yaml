@@ -1,6 +1,7 @@
 services:
   mariadb:
     container_name: mariadb
+    image: mariadb
     networks:
       - backend
     env_file:
@@ -16,11 +17,17 @@ services:
       dockerfile: ./mariadb/Dockerfile
     volumes:
       - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "test", "-f", "/var/lib/mysql/.init_done"]
+      interval: 3s
+    restart: on-failure
 
   wordpress-php:
     container_name: wordpress-php
+    image: wordpress-php
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     networks:
       - frontend
       - backend
@@ -37,9 +44,11 @@ services:
       dockerfile: ./wordpress/Dockerfile
     volumes:
       - wordpress_files:/var/www/html
+    restart: on-failure
 
   nginx:
     container_name: nginx
+    image: nginx
     depends_on:
       - wordpress-php
     ports:
@@ -51,15 +60,12 @@ services:
       dockerfile: ./nginx/Dockerfile
     volumes:
       - wordpress_files:/var/www/html:ro
+    restart: on-failure
 
 volumes:
   wordpress_files:
-    driver: local
   mariadb_data:
-    driver: local
 
 networks:
   frontend:
-    driver: bridge
   backend:
-    driver: bridge
