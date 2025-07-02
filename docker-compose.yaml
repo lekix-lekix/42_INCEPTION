@@ -1,0 +1,78 @@
+services:
+  mariadb:
+    container_name: mariadb
+    image: mariadb
+    networks:
+      - backend
+    env_file:
+      - path: ./.env
+        required: true
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PWD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_WP_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    build:
+      dockerfile: ./srcs/mariadb/Dockerfile
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "-u", "root", "-p${MARIADB_ROOT_PWD}", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      start_period: 30s
+    restart: on-failure
+
+  wordpress-php:
+    container_name: wordpress-php
+    image: wordpress-php
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+    env_file:
+      - path: ./.env
+        required: true
+    environment:
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${MARIADB_DATABASE}
+      WORDPRESS_DB_USER: ${MARIADB_WP_USER}
+      WORDPRESS_DB_PASSWORD: ${MARIADB_PASSWORD}
+    build:
+      dockerfile: ./srcs/wordpress/Dockerfile
+    volumes:
+      - wordpress_files:/var/www/html
+    restart: on-failure
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    depends_on:
+      - wordpress-php
+    ports:
+      - "443:443"
+    networks:
+      - frontend
+    build:
+      dockerfile: ./srcs/nginx/Dockerfile
+    volumes:
+      - wordpress_files:/var/www/html:ro
+    restart: on-failure
+
+volumes:
+  wordpress_files:
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/kipouliq/data/wordpress_files
+  mariadb_data:
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/kipouliq/data/mariadb_data
+
+networks:
+  frontend:
+  backend:
