@@ -1,10 +1,8 @@
-FROM debian:11.11
+FROM debian:bullseye
 
 WORKDIR /inception
 
 COPY ./srcs/wordpress .
-
-# RUN mkdir -p /home/kipouliq/data/wordpress_files
 
 RUN apt update -y && \
     apt-get install -y --no-install-recommends \

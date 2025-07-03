@@ -1,4 +1,4 @@
-FROM debian:11.11
+FROM debian:bullseye
 
 WORKDIR /inception
 
@@ -18,7 +18,6 @@ RUN mkdir -p /run/mysqld
     
 RUN chown mysql:mysql /run/mysqld
 
-# STOPSIGNAL SIGINT
 RUN chmod +x ./init.sh
 
 CMD ["bash", "./init.sh"]
