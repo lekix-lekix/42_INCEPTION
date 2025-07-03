@@ -20,4 +20,4 @@ RUN chown mysql:mysql /run/mysqld
 
 RUN chmod +x ./init.sh
 
-CMD ["bash", "./init.sh"]
+ENTRYPOINT ["./init.sh"]
